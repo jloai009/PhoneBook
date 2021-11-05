@@ -125,11 +125,14 @@ app.post('/api/persons/', (req, res) => {
     res.json(person)
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-    const id = req.params.id
-    persons = persons.filter(person => person.id !== id)
-    console.log(`Deleting person with id ${id}`)
-    res.status(204).end()
+app.delete('/api/persons/:id', (request, response, next) => {
+  console.log(`Incoming DELETE ${request.params.id}`)
+  Person.findByIdAndRemove(request.params.id)
+      .then(result => {
+        console.log('DELETE successful')
+        response.status(204).end()
+      })
+      .catch(error => next(error))
 })
 
 
@@ -138,6 +141,18 @@ const unknownEndPoint = (request, response) => {
     response.status(400).send({ error: 'unknown endpoint' })
 }
 app.use(unknownEndPoint)
+
+const errorHandler = (error, request, reponse, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformed id' })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 
 const PORT = process.env.PORT || 3001
