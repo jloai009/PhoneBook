@@ -1,7 +1,10 @@
+require('dotenv').config()
+const Person = require('./models/person')
 const { nanoid } = require('nanoid')
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const { response } = require('express')
 const app = express()
 app.use(cors())
 app.use(express.json())
@@ -65,7 +68,15 @@ app.get('/info', (req, res) => {
 
 app.get('/api/persons', (req, res) => {
     //console.log(persons)
-    res.json(persons)
+    //res.json(persons)
+    Person.find({}).then(result => {
+        console.log(result)
+        console.log('PhoneBook:')
+        result.forEach(person => {
+            console.log(person.name, person.number)
+        })
+        res.json(result)
+    })
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -80,7 +91,11 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 app.post('/api/persons/', (req, res) => {
-    const person = req.body
+
+    let person = new Person({
+        name: req.body.name,
+        number: req.body.number
+    })
 
     let personAlreadyExists = false
     for (let old_person of persons) {
@@ -103,8 +118,10 @@ app.post('/api/persons/', (req, res) => {
         })
     }
 
-    person.id = nanoid()
-    persons = persons.concat(person)
+    person.save().then(response => {
+        console.log(response)
+    })
+
     res.json(person)
 })
 
