@@ -11,7 +11,7 @@ app.use(express.json())
 app.use(express.static('build'))
 
 morgan.token('post-info', function (req, res) {
-  if (req.method != 'POST') {
+  if (req.method !== 'POST') {
     return ''
   }
   return (JSON.stringify({
@@ -94,8 +94,8 @@ app.post('/api/persons/', (req, res, next) => {
   })
 
   let personAlreadyExists = false
-  for (const old_person of persons) {
-    if (person.name === old_person.name) {
+  for (const oldPerson of persons) {
+    if (person.name === oldPerson.name) {
       personAlreadyExists = true
       break
     }
@@ -123,7 +123,7 @@ app.post('/api/persons/', (req, res, next) => {
     .catch(error => next(error))
 })
 
-app.put('/api/persons/:id', (request, response) => {
+app.put('/api/persons/:id', (request, response, next) => {
   const body = request.body
 
   const note = {
