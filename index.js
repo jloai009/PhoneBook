@@ -10,15 +10,14 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
 
-
 morgan.token('post-info', function (req, res) {
-    if (req.method != 'POST') {
-        return ""
-    }
-    return (JSON.stringify({
-        name: req.body.name,
-        number: req.body.number
-    }))
+  if (req.method != 'POST') {
+    return ''
+  }
+  return (JSON.stringify({
+    name: req.body.name,
+    number: req.body.number
+  }))
 })
 
 app.use(morgan(function (tokens, req, res) {
@@ -32,29 +31,27 @@ app.use(morgan(function (tokens, req, res) {
   ].join(' ')
 }))
 
-
-
-let persons = [
-    { 
-      "id": nanoid(),
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": nanoid(),
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": nanoid(),
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": nanoid(),
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
+const persons = [
+  {
+    id: nanoid(),
+    name: 'Arto Hellas',
+    number: '040-123456'
+  },
+  {
+    id: nanoid(),
+    name: 'Ada Lovelace',
+    number: '39-44-5323523'
+  },
+  {
+    id: nanoid(),
+    name: 'Dan Abramov',
+    number: '12-43-234345'
+  },
+  {
+    id: nanoid(),
+    name: 'Mary Poppendieck',
+    number: '39-23-6423122'
+  }
 ]
 
 const getInfo = () => (
@@ -63,20 +60,20 @@ const getInfo = () => (
 )
 
 app.get('/info', (req, res) => {
-    res.send(getInfo())
+  res.send(getInfo())
 })
 
 app.get('/api/persons', (req, res) => {
-    //console.log(persons)
-    //res.json(persons)
-    Person.find({}).then(result => {
-        console.log(result)
-        console.log('PhoneBook:')
-        result.forEach(person => {
-            console.log(person.name, person.number)
-        })
-        res.json(result)
+  // console.log(persons)
+  // res.json(persons)
+  Person.find({}).then(result => {
+    console.log(result)
+    console.log('PhoneBook:')
+    result.forEach(person => {
+      console.log(person.name, person.number)
     })
+    res.json(result)
+  })
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -87,36 +84,35 @@ app.get('/api/persons/:id', (request, response, next) => {
       response.status(404).end()
     }
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 app.post('/api/persons/', (req, res, next) => {
+  const person = new Person({
+    name: req.body.name,
+    number: req.body.number
+  })
 
-    let person = new Person({
-        name: req.body.name,
-        number: req.body.number
+  let personAlreadyExists = false
+  for (const old_person of persons) {
+    if (person.name === old_person.name) {
+      personAlreadyExists = true
+      break
+    }
+  }
+  if (personAlreadyExists) {
+    return res.status(400).json({
+      error: 'Name must be unique'
     })
-
-    let personAlreadyExists = false
-    for (let old_person of persons) {
-        if (person.name === old_person.name) {
-            personAlreadyExists = true
-            break
-        }
-    }
-    if (personAlreadyExists) {
-        return res.status(400).json({ 
-            error: 'Name must be unique' 
-        })
-    } else if (!person.name) {
-        return res.status(400).json({ 
-            error: 'Person doesn\'t have a name' 
-        })
-    } else if (!person.number) {
-        return res.status(400).json({ 
-            error: 'Person doesn\'t have a number' 
-        })
-    }
+  } else if (!person.name) {
+    return res.status(400).json({
+      error: 'Person doesn\'t have a name'
+    })
+  } else if (!person.number) {
+    return res.status(400).json({
+      error: 'Person doesn\'t have a number'
+    })
+  }
 
   person
     .save()
@@ -125,7 +121,6 @@ app.post('/api/persons/', (req, res, next) => {
       res.json(person)
     })
     .catch(error => next(error))
-
 })
 
 app.put('/api/persons/:id', (request, response) => {
@@ -133,7 +128,7 @@ app.put('/api/persons/:id', (request, response) => {
 
   const note = {
     name: body.name,
-    number: body.number,
+    number: body.number
   }
 
   Person.findByIdAndUpdate(request.params.id, note, { new: true })
@@ -146,17 +141,15 @@ app.put('/api/persons/:id', (request, response) => {
 app.delete('/api/persons/:id', (request, response, next) => {
   console.log(`Incoming DELETE ${request.params.id}`)
   Person.findByIdAndRemove(request.params.id)
-      .then(result => {
-        console.log('DELETE successful')
-        response.status(204).end()
-      })
-      .catch(error => next(error))
+    .then(result => {
+      console.log('DELETE successful')
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
-
-
 const unknownEndPoint = (request, response) => {
-    response.status(400).send({ error: 'unknown endpoint' })
+  response.status(400).send({ error: 'unknown endpoint' })
 }
 app.use(unknownEndPoint)
 
@@ -174,8 +167,7 @@ const errorHandler = (error, request, reponse, next) => {
 
 app.use(errorHandler)
 
-
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`)
 })
