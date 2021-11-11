@@ -1,1 +1,0 @@
-{"version":3,"sources":["webpack://src/index.css"],"names":[],"mappings":"AAAA,GACI,UAAW,CACX,iBACJ","file":"main.8ad63e3a.chunk.css","sourcesContent":["h1 {\r\n    color: blue;\r\n    font-style: italic;\r\n}\r\n\r\n"]}
